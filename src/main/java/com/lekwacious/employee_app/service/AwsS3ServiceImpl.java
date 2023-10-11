@@ -25,7 +25,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AwsS3ServiceImpl implements AwsS3Service {
     private static final Logger LOGGER = LoggerFactory.getLogger(AwsS3ServiceImpl.class);
-    public static final String AVATAR_PREFIX = "user/avatar/";
+    public static final String AVATAR_PREFIX = "user/avatar";
     public static final String QUESTION_PREFIX = "question/file/";
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -101,7 +101,6 @@ public class AwsS3ServiceImpl implements AwsS3Service {
                     if (!imageType(file)) {
                         return "DataUtils.generateErrorBaseResponse(Collections.singletonList(ErrorEnum.ERR_400_17.getErrors()))";
                     } else {
-                        awsS3.deleteFilesInPackage(deleteKey);
                         awsS3.upload(convertedFile, filePath);
                     }
                 }
