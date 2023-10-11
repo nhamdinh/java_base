@@ -4,13 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lekwacious.employee_app.data.models.Employee;
 import com.lekwacious.employee_app.data.payloads.request.EmployeeRequest;
 import com.lekwacious.employee_app.data.payloads.response.MessageResponse;
+import com.lekwacious.employee_app.model.request.UploadFileRequest;
+import com.lekwacious.employee_app.service.AwsS3Service;
 import com.lekwacious.employee_app.service.EmployeeService;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +28,8 @@ import java.util.Optional;
 }
 )
 public class EmployeeController {
+    @Autowired
+    private  AwsS3Service awsS3Service;
 
     @Autowired
     EmployeeService employeeService;
@@ -61,6 +67,17 @@ public class EmployeeController {
     public ResponseEntity<?> deleteEmployee(@PathVariable("id") Integer id) {
         employeeService.deleteEmployee(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/upload-file")
+    public ResponseEntity<?> uploadFile(@RequestPart("file") MultipartFile file, @io.swagger.v3.oas.annotations.parameters.RequestBody UploadFileRequest request) {
+        try{
+            return ResponseEntity.ok().body(awsS3Service.uploadFile(file, request));
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("DataUtils.generateErrorBaseResponse(Collections.singletonList(ErrorEnum.ERR_400_1.getErrors()))");
+        }
+
     }
 
 }
